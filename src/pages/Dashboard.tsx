@@ -33,6 +33,7 @@ import { NotificationCenter } from './NotificationCenter';
 import type { NotificationItem } from './NotificationCenter';
 import { DeliveryHistory } from './DeliveryHistory';
 import { FleetLeaderboard } from './FleetLeaderboard';
+import { ShiftAssistant } from './ShiftAssistant';
 
 export interface Expense {
   id: string;
@@ -579,6 +580,7 @@ export const Dashboard: React.FC<DashboardProps> = ({
             {activeTab === 'expenses' && 'Smart Expense Tracker'}
             {activeTab === 'delivery_history' && 'Delivery History'}
             {activeTab === 'leaderboard' && 'Fleet Leaderboard & Driver Ranking'}
+            {activeTab === 'shift_assistant' && 'Smart Shift Assistant'}
             {activeTab === 'chat' && (
               <span className="flex items-center gap-2">
                 Hands-Free AI Companion
@@ -600,6 +602,7 @@ export const Dashboard: React.FC<DashboardProps> = ({
             {activeTab === 'expenses' && 'Track dynamic delivery costs, profit margins & category analytics.'}
             {activeTab === 'delivery_history' && 'Review past orders, analyze payouts, and view driving stats.'}
             {activeTab === 'leaderboard' && 'Compete with local drivers, unlock weekly challenges, and track rankings.'}
+            {activeTab === 'shift_assistant' && "AI-powered planning for today's delivery shift."}
             {activeTab === 'chat' && 'Ask parking, traffic status, or restaurant tips.'}
             {activeTab === 'emergency' && 'Instant dispatcher notification & hospital tracking.'}
           </p>
@@ -1555,6 +1558,11 @@ export const Dashboard: React.FC<DashboardProps> = ({
       {/* FLEET LEADERBOARD TAB */}
       {activeTab === 'leaderboard' && (
         <FleetLeaderboard />
+      )}
+
+      {/* SMART SHIFT ASSISTANT TAB */}
+      {activeTab === 'shift_assistant' && (
+        <ShiftAssistant />
       )}
     </div>
   );
