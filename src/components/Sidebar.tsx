@@ -11,7 +11,8 @@ import {
   User,
   Settings,
   Bell,
-  AlertOctagon
+  AlertOctagon,
+  Receipt
 } from 'lucide-react';
 
 interface SidebarProps {
@@ -29,8 +30,10 @@ export const Sidebar: React.FC<SidebarProps> = ({
 
   const menuItems = [
     { id: 'overview', name: 'Overview', icon: LayoutDashboard },
+    { id: 'driver_profile', name: 'Driver Profile', icon: User },
     { id: 'map', name: 'Smart Route Map', icon: Map },
     { id: 'earnings', name: 'Earnings Tracker', icon: DollarSign },
+    { id: 'expenses', name: 'Expense Tracker', icon: Receipt },
     { id: 'chat', name: 'AI Partner Chat', icon: MessageSquare },
     { id: 'emergency', name: 'Emergency SOS', icon: AlertOctagon },
   ];

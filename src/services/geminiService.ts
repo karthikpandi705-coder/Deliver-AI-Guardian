@@ -16,34 +16,34 @@ export function getMockResponse(input: string): string {
   const lower = input.toLowerCase();
   
   if (lower.includes('rain') || lower.includes('weather') || lower.includes('storm') || lower.includes('forecast')) {
-    return "🌧️ **Downpour alert**: Heavy rain starting in about 10-15 minutes downtown. Roads are becoming slick near the highway. I recommend putting on your waterproof gear and taking corners slowly.";
+    return "🌧️ **Guardian Weather Alert**:\nHeavy rain is projected to start in about **10-15 minutes** in the Downtown core. Road surfaces are becoming slick near the Main Highway exit. \n\n*Action plan*: I recommend equipping your waterproof jacket now. Consider sticking to secondary avenues (like 4th Ave) to avoid highway gridlock and hydroplaning hazards.";
   }
   
   if (lower.includes('park') || lower.includes('parking')) {
-    return "🅿️ **Downtown Grill House Parking**: Avoid the front driveway to prevent parking tickets. Park behind the building in the loading bay (Zone B) or in the convenience store lot 50ft ahead.";
+    return "🅿️ **Downtown Grill House Pick-Up Tip**:\nAvoid parking in the front driveway—parking enforcement is active there. \n\n*Recommendation*: Pull into the rear loading zone (**Zone B**) behind the restaurant, or use the convenience store lot just 50 feet past the restaurant. Both locations allow quick 10-minute loading for delivery partners.";
   }
   
-  if (lower.includes('pay') || lower.includes('payout') || lower.includes('earning') || lower.includes('money') || lower.includes('surge')) {
-    return "💰 **Earnings Hub**: You're averaging **$31.70/hr** today (15% above target). UberEats has a **+$5.50 surge** at Central Square, and DoorDash has **+$4.00** downtown. I'd suggest routing to Central Square next.";
+  if (lower.includes('pay') || lower.includes('payout') || lower.includes('earning') || lower.includes('money') || lower.includes('surge') || lower.includes('platform')) {
+    return "💰 **Earnings Hub Analysis**:\nYour current shift average is **$31.70/hr** (15% above your target of $27.00/hr). \n\n*Surge Hotspots Detected*:\n- **UberEats**: +$5.50 surge active near Central Square.\n- **DoorDash**: +$4.00 surge active downtown.\n\n*Strategic Tip*: Route toward Central Square after your current drop-off to capture the higher UberEats multiplier.";
   }
 
   if (lower.includes('restroom') || lower.includes('bathroom') || lower.includes('toilet') || lower.includes('pee')) {
-    return "🚻 **Nearby Restrooms**: There is a driver-friendly restroom at Starbucks on 4th & Main (Entry Code: **4412#**), or at the Shell Station on Grand Ave.";
+    return "🚻 **Driver-Friendly Restrooms**:\nI have two clean, driver-accessible options nearby:\n1. **Starbucks** (4th & Main) — Door Entry Code is **4412#** (no purchase required for registered partners).\n2. **Shell Gas Station** (Grand Ave) — Request the key at the front counter; driver ID is accepted.";
   }
 
   if (lower.includes('water') || lower.includes('drink') || lower.includes('thirsty') || lower.includes('hydration')) {
-    return "💧 **Drinking Water**: Free water refills are available for drivers at the Downtown Grill House counter. There is also a public fountain in Central Park.";
+    return "💧 **Hydration Stations**:\nYour health is my priority! Free water refills are available for delivery partners at the **Downtown Grill House** pickup counter (just ask for the partner hydration jug). Alternatively, there is a public purified water fountain in **Central Plaza** near the benches.";
   }
 
   if (lower.includes('fuel') || lower.includes('gas') || lower.includes('station')) {
-    return "⛽ **Nearest Fuel**: The Shell station on Grand Ave is 0.4 miles away (currently **$3.45/gal**). They also have a convenience store and customer restrooms.";
+    return "⛽ **Nearest Fuel & Charging**:\n- **Shell Station** (Grand Ave) — 0.4 miles away. Regular fuel is currently priced at **$3.45/gal**. They feature customer restrooms and hot food.\n- **Chevron** (Broadway) — 0.6 miles away. regular fuel is **$3.51/gal**, but they offer a free digital tire inflation pump.";
   }
 
-  if (lower.includes('hello') || lower.includes('hi') || lower.includes('hey') || lower.includes('guardian')) {
-    return "👋 **Hey Karthik!** Guardian AI here. I'm ready to keep you safe and maximize your shift today. Ask me about weather alerts, parking spots, restrooms, or payout surges!";
+  if (lower.includes('hello') || lower.includes('hi') || lower.includes('hey') || lower.includes('guardian') || lower.includes('start')) {
+    return "👋 **Welcome back, Karthik!**\nGuardian AI is active and synced with your current shift. I am monitoring live weather reports, traffic conditions, and platform surges in your immediate vicinity. \n\n*Ask me anything*:\n- *'Is it going to rain?'*\n- *'Where is the best place to park at Grill House?'*\n- *'Show me surge payouts'*\n- *'Locate nearby restrooms or water'*\n\nLet's make this a safe and highly profitable shift!";
   }
 
-  return "🤖 I am checking my live resources for that. In the meantime, please remember to drive safely! Let me know if you need to locate nearby Restrooms, Parking, Fuel, or Drinking Water.";
+  return "🤖 **Guardian AI Guide**:\nI am tracking that query in your active delivery sector. To assist you quickly, please let me know if you need info on:\n- 🚻 **Restrooms** & 💧 **Drinking Water**\n- 🅿️ **Parking Spots** & ⛽ **Fuel Stations**\n- 💰 **Active Surge Rates** & 🌧️ **Weather Threat Forecasts**\n\n*Safety reminder*: Please keep your eyes on the road and only check this screen when your vehicle is fully stopped.";
 }
 
 export async function askGuardianAI(

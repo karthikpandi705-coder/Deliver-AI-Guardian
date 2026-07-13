@@ -41,37 +41,37 @@ export const LandingPage: React.FC<LandingPageProps> = ({ onNavigate }) => {
       </header>
 
       {/* Hero Section */}
-      <main className="flex-1 max-w-7xl mx-auto px-6 flex flex-col items-center justify-center text-center py-12 md:py-20 z-10">
+      <main className="flex-1 max-w-7xl mx-auto px-6 flex flex-col items-center justify-center text-center py-16 md:py-24 z-10">
         {/* Tag Pill */}
-        <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-brand-orange-alpha border border-brand-orange/30 text-brand-orange text-xs font-semibold uppercase tracking-wider mb-6 animate-pulse-subtle">
-          <Sparkles className="w-4 h-4" />
+        <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-brand-orange-alpha border border-brand-orange/35 text-brand-orange text-xs font-bold uppercase tracking-wider mb-8 animate-pulse-subtle shadow-sm shadow-brand-orange/5">
+          <Sparkles className="w-4 h-4 text-brand-orange" />
           Hackathon Winner MVP
         </div>
 
         {/* Hero Title */}
-        <h1 className="text-4xl md:text-7xl font-extrabold text-white tracking-tight leading-tight max-w-4xl">
-          One AI Assistant for Every <span className="text-brand-orange">Delivery Partner</span>
+        <h1 className="text-4xl md:text-7xl font-extrabold text-white tracking-tight leading-tight max-w-5xl">
+          One AI Assistant for Every <span className="text-transparent bg-clip-text bg-gradient-to-r from-brand-orange to-amber-500">Delivery Partner</span>
         </h1>
 
-        <p className="mt-6 text-lg md:text-xl text-white/70 max-w-2xl leading-relaxed">
+        <p className="mt-8 text-lg md:text-xl text-white/70 max-w-3xl leading-relaxed">
           Navigate smarter, boost your hourly earnings, and stay safe with real-time AI weather guards, instant local advice, and route optimization.
         </p>
 
         {/* Hero CTA Button */}
-        <div className="mt-10 flex flex-col sm:flex-row gap-4 justify-center items-center w-full">
+        <div className="mt-12 flex flex-col sm:flex-row gap-4 justify-center items-center w-full max-w-md mx-auto">
           <button
             onClick={() => onNavigate('login')}
-            className="w-full sm:w-auto flex items-center justify-center gap-3 px-8 py-4 rounded-xl bg-brand-orange hover:bg-brand-orange-hover text-white font-bold text-lg shadow-lg shadow-brand-orange/30 transition-all duration-300 hover:scale-[1.03]"
+            className="w-full sm:w-auto flex items-center justify-center gap-3 px-8 py-4 rounded-xl bg-brand-orange hover:bg-brand-orange-hover text-white font-extrabold text-lg shadow-xl shadow-brand-orange/30 hover:shadow-brand-orange/50 transition-all duration-300 hover:scale-[1.03] active:scale-95 cursor-pointer"
           >
             Launch Assistant
-            <ArrowRight className="w-5 h-5" />
+            <ArrowRight className="w-5 h-5 transition-transform duration-300 group-hover:translate-x-1" />
           </button>
           <button
             onClick={() => {
               const element = document.getElementById('features');
               element?.scrollIntoView({ behavior: 'smooth' });
             }}
-            className="w-full sm:w-auto px-8 py-4 rounded-xl text-white/80 hover:text-white hover:bg-white/5 border border-white/5 transition-all duration-300"
+            className="w-full sm:w-auto px-8 py-4 rounded-xl text-white/80 hover:text-white hover:bg-white/5 border border-white/10 hover:border-white/20 transition-all duration-300 font-semibold cursor-pointer"
           >
             Learn Features
           </button>

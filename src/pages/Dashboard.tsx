@@ -17,13 +17,36 @@ import {
   ShieldAlert,
   Clock,
   Activity,
-  Heart
+  Heart,
+  Receipt,
+  Plus,
+  Trash2,
+  TrendingDown
 } from 'lucide-react';
 import { GlassCard } from '../components/GlassCard';
 import { askGuardianAI, getMockResponse } from '../services/geminiService';
 import type { ChatMessage } from '../services/geminiService';
 import { ApiSettings } from '../components/ApiSettings';
 import { MapContainer } from '../components/MapContainer';
+import { DriverProfile } from './DriverProfile';
+
+export interface Expense {
+  id: string;
+  date: string;
+  category: 'Fuel' | 'Parking' | 'Food' | 'Toll' | 'Vehicle Maintenance' | 'Other';
+  amount: number;
+  note?: string;
+}
+
+const INITIAL_EXPENSES: Expense[] = [
+  { id: 'exp-1', date: '2026-07-13', category: 'Fuel', amount: 25.00, note: 'Chevron gas station fill up' },
+  { id: 'exp-2', date: '2026-07-13', category: 'Parking', amount: 4.50, note: 'Meter parking near Downtown Grill' },
+  { id: 'exp-3', date: '2026-07-12', category: 'Food', amount: 12.80, note: 'Lunch during shift' },
+  { id: 'exp-4', date: '2026-07-11', category: 'Toll', amount: 6.00, note: 'Expressway toll fee' },
+  { id: 'exp-5', date: '2026-07-08', category: 'Vehicle Maintenance', amount: 85.00, note: 'Oil change and tire pressure check' },
+  { id: 'exp-6', date: '2026-07-05', category: 'Other', amount: 15.00, note: 'Phone mount for dashboard' },
+  { id: 'exp-7', date: '2026-07-02', category: 'Fuel', amount: 28.50, note: 'Shell gas fill up' },
+];
 
 interface DashboardProps {
   activeTab: string;
@@ -31,6 +54,43 @@ interface DashboardProps {
 }
 
 export const Dashboard: React.FC<DashboardProps> = ({ activeTab, setActiveTab }) => {
+  // Expenses State
+  const [expenses, setExpenses] = useState<Expense[]>(() => {
+    const saved = localStorage.getItem('deliverai_expenses');
+    if (saved) {
+      try {
+        return JSON.parse(saved);
+      } catch (e) {
+        console.error("Failed to parse expenses from local storage", e);
+      }
+    }
+    // Set default initial data
+    localStorage.setItem('deliverai_expenses', JSON.stringify(INITIAL_EXPENSES));
+    return INITIAL_EXPENSES;
+  });
+
+  // Save expenses to localStorage when updated
+  useEffect(() => {
+    localStorage.setItem('deliverai_expenses', JSON.stringify(expenses));
+  }, [expenses]);
+
+  // Form State
+  const [newExpenseCategory, setNewExpenseCategory] = useState<Expense['category']>('Fuel');
+  const [newExpenseAmount, setNewExpenseAmount] = useState<string>('');
+  const [newExpenseNote, setNewExpenseNote] = useState<string>('');
+  const [newExpenseDate, setNewExpenseDate] = useState<string>(() => {
+    const today = new Date();
+    const yyyy = today.getFullYear();
+    const mm = String(today.getMonth() + 1).padStart(2, '0');
+    const dd = String(today.getDate()).padStart(2, '0');
+    return `${yyyy}-${mm}-${dd}`;
+  });
+
+  // Helper calculation inputs
+  const earningsToday = 142.80;
+  const earningsWeekly = 850.00;
+  const earningsMonthly = 3400.00;
+
   // Emergency states
   const [sosState, setSosState] = useState<'idle' | 'countdown' | 'active'>('idle');
   const [countdown, setCountdown] = useState(5);
@@ -347,6 +407,30 @@ export const Dashboard: React.FC<DashboardProps> = ({ activeTab, setActiveTab })
     setIsDemoMode(!geminiKey);
   };
 
+  // Expense Handlers
+  const handleAddExpense = (e: React.FormEvent) => {
+    e.preventDefault();
+    const amountNum = parseFloat(newExpenseAmount);
+    if (isNaN(amountNum) || amountNum <= 0) {
+      alert("Please enter a valid amount greater than 0");
+      return;
+    }
+    const newExp: Expense = {
+      id: `exp-${Date.now()}`,
+      category: newExpenseCategory,
+      amount: amountNum,
+      note: newExpenseNote.trim() || undefined,
+      date: newExpenseDate
+    };
+    setExpenses(prev => [newExp, ...prev]);
+    setNewExpenseAmount('');
+    setNewExpenseNote('');
+  };
+
+  const handleDeleteExpense = (id: string) => {
+    setExpenses(prev => prev.filter(e => e.id !== id));
+  };
+
   // AI Chat Submission
   const handleSendMessage = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -397,6 +481,72 @@ export const Dashboard: React.FC<DashboardProps> = ({ activeTab, setActiveTab })
     }));
   };
 
+  // Expense calculation helpers
+  const parseDate = (dStr: string) => {
+    const [y, m, d] = dStr.split('-').map(Number);
+    return new Date(y, m - 1, d);
+  };
+  const todayRef = parseDate('2026-07-13');
+
+  const todayExpensesTotal = expenses
+    .filter(e => e.date === '2026-07-13')
+    .reduce((sum, e) => sum + e.amount, 0);
+
+  const weeklyExpensesTotal = expenses
+    .filter(e => {
+      const expDate = parseDate(e.date);
+      const diffTime = todayRef.getTime() - expDate.getTime();
+      const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+      return diffDays >= 0 && diffDays < 7;
+    })
+    .reduce((sum, e) => sum + e.amount, 0);
+
+  const monthlyExpensesTotal = expenses
+    .filter(e => {
+      const expDate = parseDate(e.date);
+      const diffTime = todayRef.getTime() - expDate.getTime();
+      const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+      return diffDays >= 0 && diffDays < 30;
+    })
+    .reduce((sum, e) => sum + e.amount, 0);
+
+  const netProfitToday = earningsToday - todayExpensesTotal;
+  const netProfitWeekly = earningsWeekly - weeklyExpensesTotal;
+  const netProfitMonthly = earningsMonthly - monthlyExpensesTotal;
+
+  const monthlyProfitMargin = earningsMonthly > 0 
+    ? ((netProfitMonthly / earningsMonthly) * 100).toFixed(1)
+    : '0.0';
+
+  const categories: Expense['category'][] = ['Fuel', 'Parking', 'Food', 'Toll', 'Vehicle Maintenance', 'Other'];
+  const categoryTotals = categories.reduce((acc, cat) => {
+    acc[cat] = expenses.filter(e => e.category === cat).reduce((sum, e) => sum + e.amount, 0);
+    return acc;
+  }, {} as Record<Expense['category'], number>);
+
+  const totalExpensesAllTime = expenses.reduce((sum, e) => sum + e.amount, 0);
+
+  // Dynamic AI Recommendations
+  const getAiRecommendations = () => {
+    const recs = [];
+    const fuelTotal = categoryTotals['Fuel'] || 0;
+    const parkingTotal = categoryTotals['Parking'] || 0;
+
+    if (fuelTotal > 40) {
+      recs.push("Fuel expenses are higher than average. Consider matching deliveries in similar directions.");
+    } else {
+      recs.push("Fuel efficiency is currently stable. Maintain steady driving to keep it optimal.");
+    }
+
+    if (parkingTotal > 10) {
+      recs.push("Parking costs increased this week. Utilize free loading zones where possible.");
+    }
+
+    recs.push("Reduce idle time during stops to minimize overall fuel waste.");
+    recs.push("You can increase your daily profit by 8% by optimizing routes using the Smart Route Map.");
+    return recs;
+  };
+
   return (
     <div className="flex-1 p-4 md:p-8 overflow-y-auto max-w-7xl mx-auto w-full">
       {/* Settings Modal */}
@@ -411,8 +561,10 @@ export const Dashboard: React.FC<DashboardProps> = ({ activeTab, setActiveTab })
         <div>
           <h2 className="text-2xl md:text-3xl font-extrabold text-white tracking-tight">
             {activeTab === 'overview' && 'Shift Overview'}
+            {activeTab === 'driver_profile' && 'Driver Profile & Performance'}
             {activeTab === 'map' && 'Guardian AI Live Routing'}
             {activeTab === 'earnings' && 'Shift Earnings Hub'}
+            {activeTab === 'expenses' && 'Smart Expense Tracker'}
             {activeTab === 'chat' && (
               <span className="flex items-center gap-2">
                 Hands-Free AI Companion
@@ -427,8 +579,10 @@ export const Dashboard: React.FC<DashboardProps> = ({ activeTab, setActiveTab })
           </h2>
           <p className="text-xs text-white/50">
             {activeTab === 'overview' && 'Real-time performance & active alerts.'}
+            {activeTab === 'driver_profile' && 'View and manage credentials, interactive metrics, and badges.'}
             {activeTab === 'map' && 'Dynamic weather overlay & smart navigation.'}
             {activeTab === 'earnings' && 'Detailed income stats & platform compare.'}
+            {activeTab === 'expenses' && 'Track dynamic delivery costs, profit margins & category analytics.'}
             {activeTab === 'chat' && 'Ask parking, traffic status, or restaurant tips.'}
             {activeTab === 'emergency' && 'Instant dispatcher notification & hospital tracking.'}
           </p>
@@ -451,11 +605,16 @@ export const Dashboard: React.FC<DashboardProps> = ({ activeTab, setActiveTab })
         </div>
       </div>
 
+      {/* DRIVER PROFILE TAB */}
+      {activeTab === 'driver_profile' && (
+        <DriverProfile />
+      )}
+
       {/* OVERVIEW TAB */}
       {activeTab === 'overview' && (
         <div className="space-y-6">
           {/* Quick Metrics grid */}
-          <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
             <GlassCard className="p-4 flex flex-col justify-between">
               <span className="text-xs font-semibold text-white/50 uppercase">Today's Earnings</span>
               <div className="flex items-baseline justify-between mt-2">
@@ -1139,6 +1298,225 @@ export const Dashboard: React.FC<DashboardProps> = ({ activeTab, setActiveTab })
                 <span className="font-bold text-white block">3. Keep app open</span>
                 <p className="leading-relaxed">Our dispatch agents use your active app session to guide EMS vehicles.</p>
               </div>
+            </div>
+          </GlassCard>
+        </div>
+      )}
+
+      {/* EXPENSE TRACKER TAB */}
+      {activeTab === 'expenses' && (
+        <div className="space-y-6">
+          {/* Expense Summary metrics */}
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+            <GlassCard className="p-4 flex flex-col justify-between">
+              <span className="text-xs font-semibold text-white/50 uppercase">Today's Expenses</span>
+              <div className="flex items-baseline justify-between mt-2">
+                <span className="text-2xl md:text-3xl font-extrabold text-white">${todayExpensesTotal.toFixed(2)}</span>
+                <span className="text-xs text-emerald-400 font-semibold">Net Profit: ${netProfitToday.toFixed(2)}</span>
+              </div>
+            </GlassCard>
+
+            <GlassCard className="p-4 flex flex-col justify-between">
+              <span className="text-xs font-semibold text-white/50 uppercase">Weekly Expenses</span>
+              <div className="flex items-baseline justify-between mt-2">
+                <span className="text-2xl md:text-3xl font-extrabold text-white">${weeklyExpensesTotal.toFixed(2)}</span>
+                <span className="text-xs text-emerald-400 font-semibold">Net Profit: ${netProfitWeekly.toFixed(2)}</span>
+              </div>
+            </GlassCard>
+
+            <GlassCard className="p-4 flex flex-col justify-between">
+              <span className="text-xs font-semibold text-white/50 uppercase">Monthly Expenses</span>
+              <div className="flex items-baseline justify-between mt-2">
+                <span className="text-2xl md:text-3xl font-extrabold text-white">${monthlyExpensesTotal.toFixed(2)}</span>
+                <span className="text-xs text-white/50">Last 30 days</span>
+              </div>
+            </GlassCard>
+
+            <GlassCard className="p-4 flex flex-col justify-between border border-emerald-500/20 bg-emerald-500/5">
+              <span className="text-xs font-semibold text-white/50 uppercase">Net Profit (Monthly)</span>
+              <div className="flex items-baseline justify-between mt-2">
+                <span className="text-2xl md:text-3xl font-extrabold text-emerald-400">${netProfitMonthly.toFixed(2)}</span>
+                <span className="text-xs text-emerald-400 font-semibold">{monthlyProfitMargin}% margin</span>
+              </div>
+            </GlassCard>
+          </div>
+
+          <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+            {/* Quick Add Expense form */}
+            <GlassCard className="space-y-4">
+              <h3 className="font-bold text-white text-base flex items-center gap-2 border-b border-white/5 pb-3">
+                <Plus className="w-5 h-5 text-brand-orange" />
+                Quick Add Expense
+              </h3>
+              <form onSubmit={handleAddExpense} className="space-y-4">
+                <div>
+                  <label className="text-xs text-white/60 block mb-1 font-semibold">Category</label>
+                  <select
+                    value={newExpenseCategory}
+                    onChange={(e) => setNewExpenseCategory(e.target.value as Expense['category'])}
+                    className="w-full py-2.5 px-4 rounded-xl glass-input text-sm bg-brand-dark"
+                  >
+                    {categories.map((cat) => (
+                      <option key={cat} value={cat} className="bg-brand-dark text-white">
+                        {cat}
+                      </option>
+                    ))}
+                  </select>
+                </div>
+
+                <div>
+                  <label className="text-xs text-white/60 block mb-1 font-semibold">Amount ($)</label>
+                  <input
+                    type="number"
+                    step="0.01"
+                    placeholder="0.00"
+                    value={newExpenseAmount}
+                    onChange={(e) => setNewExpenseAmount(e.target.value)}
+                    required
+                    className="w-full py-2.5 px-4 rounded-xl glass-input text-sm"
+                  />
+                </div>
+
+                <div>
+                  <label className="text-xs text-white/60 block mb-1 font-semibold">Date</label>
+                  <input
+                    type="date"
+                    value={newExpenseDate}
+                    onChange={(e) => setNewExpenseDate(e.target.value)}
+                    required
+                    className="w-full py-2.5 px-4 rounded-xl glass-input text-sm bg-brand-dark"
+                  />
+                </div>
+
+                <div>
+                  <label className="text-xs text-white/60 block mb-1 font-semibold">Optional Note</label>
+                  <input
+                    type="text"
+                    placeholder="e.g. Fuel up at Chevron"
+                    value={newExpenseNote}
+                    onChange={(e) => setNewExpenseNote(e.target.value)}
+                    className="w-full py-2.5 px-4 rounded-xl glass-input text-sm"
+                  />
+                </div>
+
+                <button
+                  type="submit"
+                  className="w-full py-2.5 bg-brand-orange hover:bg-brand-orange-hover text-white font-bold text-xs rounded-xl transition-all shadow-md shadow-brand-orange/20 active:scale-95 flex items-center justify-center gap-2"
+                >
+                  <Plus className="w-4 h-4" />
+                  Add Expense
+                </button>
+              </form>
+            </GlassCard>
+
+            {/* Analytics & Category Breakdown */}
+            <GlassCard className="space-y-4">
+              <h3 className="font-bold text-white text-base flex items-center gap-2 border-b border-white/5 pb-3">
+                <TrendingDown className="w-5 h-5 text-brand-orange" />
+                Category Analytics
+              </h3>
+              <div className="space-y-4">
+                {categories.map((cat) => {
+                  const amount = categoryTotals[cat] || 0;
+                  const percent = totalExpensesAllTime > 0 
+                    ? Math.round((amount / totalExpensesAllTime) * 100)
+                    : 0;
+                  return (
+                    <div key={cat} className="space-y-1">
+                      <div className="flex justify-between text-xs font-semibold text-white/80">
+                        <span>{cat}</span>
+                        <span>${amount.toFixed(2)} ({percent}%)</span>
+                      </div>
+                      <div className="h-2 w-full bg-white/5 rounded-full overflow-hidden">
+                        <div 
+                          className="h-full bg-brand-orange rounded-full transition-all duration-500" 
+                          style={{ width: `${percent}%` }}
+                        ></div>
+                      </div>
+                    </div>
+                  );
+                })}
+              </div>
+
+              {/* Profit Margin Info */}
+              <div className="mt-4 pt-3 border-t border-white/5 grid grid-cols-2 gap-2 text-xs">
+                <div className="bg-white/5 p-3 rounded-xl border border-white/5 text-center">
+                  <span className="text-white/40 block">Total Earnings</span>
+                  <span className="font-extrabold text-white text-sm">${earningsMonthly.toFixed(2)}</span>
+                </div>
+                <div className="bg-white/5 p-3 rounded-xl border border-white/5 text-center">
+                  <span className="text-white/40 block">Total Expenses</span>
+                  <span className="font-extrabold text-white text-sm">${totalExpensesAllTime.toFixed(2)}</span>
+                </div>
+              </div>
+            </GlassCard>
+
+            {/* AI Insights & Recommendations */}
+            <GlassCard className="space-y-4 border border-brand-orange/20 bg-brand-orange-alpha/5">
+              <h3 className="font-bold text-white text-base flex items-center gap-2 border-b border-white/5 pb-3">
+                <Sparkles className="w-5 h-5 text-brand-orange animate-float" />
+                AI Expense Insights
+              </h3>
+              <div className="space-y-3">
+                {getAiRecommendations().map((rec, idx) => (
+                  <div key={idx} className="p-3 bg-white/5 border border-white/5 rounded-xl flex items-start gap-2.5">
+                    <Sparkles className="w-4 h-4 text-brand-orange shrink-0 mt-0.5" />
+                    <p className="text-xs text-white/85 leading-relaxed">{rec}</p>
+                  </div>
+                ))}
+              </div>
+            </GlassCard>
+          </div>
+
+          {/* Expense History Table */}
+          <GlassCard className="space-y-4">
+            <h3 className="font-bold text-white text-base flex items-center gap-2 border-b border-white/5 pb-3">
+              <Receipt className="w-5 h-5 text-brand-orange" />
+              Expense History
+            </h3>
+            <div className="overflow-x-auto">
+              <table className="w-full text-left border-collapse">
+                <thead>
+                  <tr className="border-b border-white/10 text-xs text-white/50 font-bold uppercase">
+                    <th className="py-3 px-4">Date</th>
+                    <th className="py-3 px-4">Category</th>
+                    <th className="py-3 px-4">Amount</th>
+                    <th className="py-3 px-4">Note</th>
+                    <th className="py-3 px-4 text-center">Actions</th>
+                  </tr>
+                </thead>
+                <tbody className="divide-y divide-white/5 text-sm text-white/90">
+                  {expenses.length === 0 ? (
+                    <tr>
+                      <td colSpan={5} className="py-8 text-center text-white/40">
+                        No expenses recorded yet. Use the form to add one!
+                      </td>
+                    </tr>
+                  ) : (
+                    expenses.map((exp) => (
+                      <tr key={exp.id} className="hover:bg-white/5 transition-colors">
+                        <td className="py-3 px-4 font-medium">{exp.date}</td>
+                        <td className="py-3 px-4">
+                          <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-semibold bg-white/10 text-white/80">
+                            {exp.category}
+                          </span>
+                        </td>
+                        <td className="py-3 px-4 font-bold text-white">${exp.amount.toFixed(2)}</td>
+                        <td className="py-3 px-4 text-white/70 max-w-[200px] truncate">{exp.note || '—'}</td>
+                        <td className="py-3 px-4 text-center">
+                          <button
+                            onClick={() => handleDeleteExpense(exp.id)}
+                            className="p-1.5 text-white/40 hover:text-red-500 hover:bg-red-500/10 rounded-lg transition-all"
+                            title="Delete Expense"
+                          >
+                            <Trash2 className="w-4 h-4" />
+                          </button>
+                        </td>
+                      </tr>
+                    ))
+                  )}
+                </tbody>
+              </table>
             </div>
           </GlassCard>
         </div>
