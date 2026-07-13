@@ -15,7 +15,8 @@ import {
   Receipt,
   History,
   Trophy,
-  CalendarDays
+  CalendarDays,
+  Car
 } from 'lucide-react';
 
 interface SidebarProps {
@@ -36,6 +37,7 @@ export const Sidebar: React.FC<SidebarProps> = ({
   const menuItems = [
     { id: 'overview', name: 'Overview', icon: LayoutDashboard },
     { id: 'shift_assistant', name: 'Smart Shift Assistant', icon: CalendarDays },
+    { id: 'vehicle_maintenance', name: 'Vehicle Maintenance', icon: Car },
     { id: 'driver_profile', name: 'Driver Profile', icon: User },
     { id: 'map', name: 'Smart Route Map', icon: Map },
     { id: 'notifications', name: 'Notification Center', icon: Bell },
