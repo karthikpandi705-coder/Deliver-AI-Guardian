@@ -31,6 +31,8 @@ import { MapContainer } from '../components/MapContainer';
 import { DriverProfile } from './DriverProfile';
 import { NotificationCenter } from './NotificationCenter';
 import type { NotificationItem } from './NotificationCenter';
+import { DeliveryHistory } from './DeliveryHistory';
+import { FleetLeaderboard } from './FleetLeaderboard';
 
 export interface Expense {
   id: string;
@@ -575,6 +577,8 @@ export const Dashboard: React.FC<DashboardProps> = ({
             {activeTab === 'notifications' && 'Notification Center'}
             {activeTab === 'earnings' && 'Shift Earnings Hub'}
             {activeTab === 'expenses' && 'Smart Expense Tracker'}
+            {activeTab === 'delivery_history' && 'Delivery History'}
+            {activeTab === 'leaderboard' && 'Fleet Leaderboard & Driver Ranking'}
             {activeTab === 'chat' && (
               <span className="flex items-center gap-2">
                 Hands-Free AI Companion
@@ -592,8 +596,10 @@ export const Dashboard: React.FC<DashboardProps> = ({
             {activeTab === 'driver_profile' && 'View and manage credentials, interactive metrics, and badges.'}
             {activeTab === 'map' && 'Dynamic weather overlay & smart navigation.'}
             {activeTab === 'notifications' && 'Interactive alerts feed, priority logs, and configuration.'}
-            {activeTab === 'earnings' && 'Detailed income stats & platform compare.'}
+            {activeTab === 'earnings' && 'Shift Earnings Hub'}
             {activeTab === 'expenses' && 'Track dynamic delivery costs, profit margins & category analytics.'}
+            {activeTab === 'delivery_history' && 'Review past orders, analyze payouts, and view driving stats.'}
+            {activeTab === 'leaderboard' && 'Compete with local drivers, unlock weekly challenges, and track rankings.'}
             {activeTab === 'chat' && 'Ask parking, traffic status, or restaurant tips.'}
             {activeTab === 'emergency' && 'Instant dispatcher notification & hospital tracking.'}
           </p>
@@ -1539,6 +1545,16 @@ export const Dashboard: React.FC<DashboardProps> = ({
             </div>
           </GlassCard>
         </div>
+      )}
+
+      {/* DELIVERY HISTORY TAB */}
+      {activeTab === 'delivery_history' && (
+        <DeliveryHistory />
+      )}
+
+      {/* FLEET LEADERBOARD TAB */}
+      {activeTab === 'leaderboard' && (
+        <FleetLeaderboard />
       )}
     </div>
   );

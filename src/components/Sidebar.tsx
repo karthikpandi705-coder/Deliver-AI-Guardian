@@ -12,7 +12,9 @@ import {
   Settings,
   Bell,
   AlertOctagon,
-  Receipt
+  Receipt,
+  History,
+  Trophy
 } from 'lucide-react';
 
 interface SidebarProps {
@@ -37,6 +39,8 @@ export const Sidebar: React.FC<SidebarProps> = ({
     { id: 'notifications', name: 'Notification Center', icon: Bell },
     { id: 'earnings', name: 'Earnings Tracker', icon: DollarSign },
     { id: 'expenses', name: 'Expense Tracker', icon: Receipt },
+    { id: 'delivery_history', name: 'Delivery History', icon: History },
+    { id: 'leaderboard', name: 'Fleet Leaderboard', icon: Trophy },
     { id: 'chat', name: 'AI Partner Chat', icon: MessageSquare },
     { id: 'emergency', name: 'Emergency SOS', icon: AlertOctagon },
   ];
