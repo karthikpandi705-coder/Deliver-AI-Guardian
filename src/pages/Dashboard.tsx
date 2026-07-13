@@ -29,6 +29,8 @@ import type { ChatMessage } from '../services/geminiService';
 import { ApiSettings } from '../components/ApiSettings';
 import { MapContainer } from '../components/MapContainer';
 import { DriverProfile } from './DriverProfile';
+import { NotificationCenter } from './NotificationCenter';
+import type { NotificationItem } from './NotificationCenter';
 
 export interface Expense {
   id: string;
@@ -51,9 +53,16 @@ const INITIAL_EXPENSES: Expense[] = [
 interface DashboardProps {
   activeTab: string;
   setActiveTab?: (tab: string) => void;
+  notifications?: NotificationItem[];
+  setNotifications?: React.Dispatch<React.SetStateAction<NotificationItem[]>>;
 }
 
-export const Dashboard: React.FC<DashboardProps> = ({ activeTab, setActiveTab }) => {
+export const Dashboard: React.FC<DashboardProps> = ({ 
+  activeTab, 
+  setActiveTab,
+  notifications,
+  setNotifications
+}) => {
   // Expenses State
   const [expenses, setExpenses] = useState<Expense[]>(() => {
     const saved = localStorage.getItem('deliverai_expenses');
@@ -563,6 +572,7 @@ export const Dashboard: React.FC<DashboardProps> = ({ activeTab, setActiveTab })
             {activeTab === 'overview' && 'Shift Overview'}
             {activeTab === 'driver_profile' && 'Driver Profile & Performance'}
             {activeTab === 'map' && 'Guardian AI Live Routing'}
+            {activeTab === 'notifications' && 'Notification Center'}
             {activeTab === 'earnings' && 'Shift Earnings Hub'}
             {activeTab === 'expenses' && 'Smart Expense Tracker'}
             {activeTab === 'chat' && (
@@ -581,6 +591,7 @@ export const Dashboard: React.FC<DashboardProps> = ({ activeTab, setActiveTab })
             {activeTab === 'overview' && 'Real-time performance & active alerts.'}
             {activeTab === 'driver_profile' && 'View and manage credentials, interactive metrics, and badges.'}
             {activeTab === 'map' && 'Dynamic weather overlay & smart navigation.'}
+            {activeTab === 'notifications' && 'Interactive alerts feed, priority logs, and configuration.'}
             {activeTab === 'earnings' && 'Detailed income stats & platform compare.'}
             {activeTab === 'expenses' && 'Track dynamic delivery costs, profit margins & category analytics.'}
             {activeTab === 'chat' && 'Ask parking, traffic status, or restaurant tips.'}
@@ -608,6 +619,14 @@ export const Dashboard: React.FC<DashboardProps> = ({ activeTab, setActiveTab })
       {/* DRIVER PROFILE TAB */}
       {activeTab === 'driver_profile' && (
         <DriverProfile />
+      )}
+
+      {/* NOTIFICATION CENTER TAB */}
+      {activeTab === 'notifications' && (
+        <NotificationCenter 
+          notifications={notifications || []} 
+          setNotifications={setNotifications || (() => {})} 
+        />
       )}
 
       {/* OVERVIEW TAB */}

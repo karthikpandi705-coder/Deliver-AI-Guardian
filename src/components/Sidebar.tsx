@@ -19,12 +19,14 @@ interface SidebarProps {
   onNavigate: (page: 'landing' | 'login' | 'dashboard') => void;
   activeTab: string;
   setActiveTab: (tab: string) => void;
+  unreadCount?: number;
 }
 
 export const Sidebar: React.FC<SidebarProps> = ({
   onNavigate,
   activeTab,
   setActiveTab,
+  unreadCount = 0,
 }) => {
   const [isOpen, setIsOpen] = useState(false);
 
@@ -32,6 +34,7 @@ export const Sidebar: React.FC<SidebarProps> = ({
     { id: 'overview', name: 'Overview', icon: LayoutDashboard },
     { id: 'driver_profile', name: 'Driver Profile', icon: User },
     { id: 'map', name: 'Smart Route Map', icon: Map },
+    { id: 'notifications', name: 'Notification Center', icon: Bell },
     { id: 'earnings', name: 'Earnings Tracker', icon: DollarSign },
     { id: 'expenses', name: 'Expense Tracker', icon: Receipt },
     { id: 'chat', name: 'AI Partner Chat', icon: MessageSquare },
@@ -127,7 +130,12 @@ export const Sidebar: React.FC<SidebarProps> = ({
                 `}
               >
                 <Icon className={`w-5 h-5 ${isActive ? 'text-white' : isEmergency ? 'text-red-500 animate-pulse' : 'text-brand-orange'}`} />
-                {item.name}
+                <span className="flex-1 text-left">{item.name}</span>
+                {item.id === 'notifications' && unreadCount > 0 && (
+                  <span className="px-2 py-0.5 text-[10px] font-bold bg-brand-orange text-white rounded-full animate-pulse shadow-sm shadow-brand-orange/20">
+                    {unreadCount}
+                  </span>
+                )}
               </button>
             );
           })}
